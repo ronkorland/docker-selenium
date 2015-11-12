@@ -14,12 +14,18 @@ function shutdown {
     echo "shutdown complete"
 }
 
-java -jar /opt/selenium/selenium-server-standalone.jar \
+GRID_SERVLETS_PARAM=""
+if [ ! -z "$GRID_SERVLETS" ]; then
+  echo "GRID_SERVLETS variable is set, appending -servlets"
+  GRID_SERVLETS_PARAM="-servlets $GRID_SERVLETS"
+fi
+
+java -cp "$ROOT/*" org.openqa.grid.selenium.GridLauncher \
   ${JAVA_OPTS} \
+  ${GRID_SERVLETS_PARAM} \
   -role hub \
   -hubConfig $CONF &
 NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT
 wait $NODE_PID
-
